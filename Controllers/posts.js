@@ -54,9 +54,19 @@ const likedPost = async (req, res) => {
         const { id } = req.params;
         const { userId } = req.body;
         const post = await PostModel.findById(id);
-        const isLiked = await PostModel.likes.get(userId);
+        console.log(post);
+        const isLiked = await post.likes.get(userId);
         console.log(isLiked);
-        res.status(201).json();
+        if (isLiked) {
+            post.likes.delete(userId)
+        }
+        else {
+            post.likes.set(userId, true)
+        }
+
+        const updatedPost = await PostModel.findByIdAndUpdate(id, { likes: post.likes },{new: true})
+
+        res.status(201).json(updatedPost);
     } catch (error) {
         res.status(404).json({ message: error })
     }
